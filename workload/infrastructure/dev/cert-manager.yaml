@@ -19,7 +19,7 @@ spec:
         kind: HelmRepository
         name: bitnami
         namespace: cluster-config
-      version: "0.12.4"
+      version: "~0.12.4"
   interval: 1h0m0s  
   install:
     remediation:

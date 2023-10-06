@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: bitnami
         namespace: cluster-config
-      version: "17.1.15"
+      version: "~17.1.15"
   interval: 1h0m0s
   install:
     remediation:
