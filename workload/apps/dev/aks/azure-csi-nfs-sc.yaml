@@ -1,0 +1,20 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+    name: azurefile-csi-nfs-sc
+provisioner: file.csi.azure.com
+parameters:
+    protocol: nfs
+    skuName: Premium_LRS
+reclaimPolicy: Delete
+mountOptions:
+    - nconnect=4
+    - rsize=262144
+    - wsize=262144
+    - tcp
+    - intr
+    - hard
+    - noatime
+    - nodiratime
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer

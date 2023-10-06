@@ -1,0 +1,101 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.21.1.54444",
+      "templateHash": "1010864012772715377"
+    }
+  },
+  "parameters": {
+    "aksName": {
+      "type": "string"
+    },
+    "aksFluxAddOnReleaseNamespace": {
+      "type": "string",
+      "defaultValue": "flux-system"
+    },
+    "fluxConfigRepo": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The Git Repository URL where your flux configuration is homed"
+      }
+    },
+    "fluxConfigRepoBranch": {
+      "type": "string",
+      "defaultValue": "main"
+    },
+    "fluxConfigName": {
+      "type": "string",
+      "defaultValue": "bootstrap",
+      "metadata": {
+        "description": "The name of the flux configuration to apply"
+      }
+    },
+    "fluxRepoUsername": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "For private Repos, provide the username"
+      }
+    },
+    "fluxRepoPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "For private Repos, provide the password"
+      }
+    },
+    "fluxRepoPath": {
+      "type": "string",
+      "defaultValue": "./cluster-manifests"
+    }
+  },
+  "variables": {
+    "cleanFluxConfigName": "[toLower(parameters('fluxConfigName'))]",
+    "fluxRepoUsernameB64": "[base64(parameters('fluxRepoUsername'))]",
+    "fluxRepoPasswordB64": "[base64(parameters('fluxRepoPassword'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KubernetesConfiguration/fluxConfigurations",
+      "apiVersion": "2022-03-01",
+      "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', parameters('aksName'))]",
+      "name": "[variables('cleanFluxConfigName')]",
+      "properties": {
+        "scope": "cluster",
+        "namespace": "[parameters('aksFluxAddOnReleaseNamespace')]",
+        "sourceKind": "GitRepository",
+        "gitRepository": {
+          "url": "[parameters('fluxConfigRepo')]",
+          "timeoutInSeconds": 180,
+          "syncIntervalInSeconds": 300,
+          "repositoryRef": {
+            "branch": "[parameters('fluxConfigRepoBranch')]",
+            "tag": null,
+            "semver": null,
+            "commit": null
+          },
+          "sshKnownHosts": "",
+          "httpsUser": null,
+          "httpsCACert": null,
+          "localAuthRef": null
+        },
+        "configurationProtectedSettings": "[if(and(not(empty(variables('fluxRepoUsernameB64'))), not(empty(variables('fluxRepoPasswordB64')))), createObject('username', variables('fluxRepoUsernameB64'), 'password', variables('fluxRepoPasswordB64')), createObject())]",
+        "kustomizations": {
+          "unified": {
+            "path": "[parameters('fluxRepoPath')]",
+            "dependsOn": [],
+            "timeoutInSeconds": 300,
+            "syncIntervalInSeconds": 300,
+            "retryIntervalInSeconds": 300,
+            "prune": true,
+            "force": false
+          }
+        }
+      }
+    }
+  ]
+}

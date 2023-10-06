@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- azure-csi-nfs-sc.yaml
+- azure-csi-premium-files-samba-sc.yaml
+- prod-cluster-issuer.yaml
+- staging-cluster-issuer.yaml

@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: cluster-config
+spec:
+  releaseName: cert-maanger
+  targetNamespace: cert-manager
+  chart:
+    spec:
+      chart: cert-manager
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: cluster-config
+      version: "0.12.4"
+  interval: 1h0m0s  
+  install:
+    remediation:
+      retries: 30
+  values:
+    installCRDs: true
+    controller:
+      priorityClassName: aks-wp-app-high-priority
+      annotations:
+        helm.sh/hook: "pre-install"
+        helm.sh/hook-weight": "-10"
+      nodeSelector:
+        kubernetes.io/os: linux
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 250m
+          memory: 128Mi
+    cainjector:
+      priorityClassName: aks-wp-app-high-priority
+      annotations:
+        helm.sh/hook: "pre-install"
+        helm.sh/hook-weight": "-10"
+      nodeSelector:
+        kubernetes.io/os: linux
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 250m
+          memory: 128Mi
+    webhook:
+      priorityClassName: aks-wp-app-high-priority
+      annotations:
+        helm.sh/hook: "pre-install"
+        helm.sh/hook-weight": "-5"
+      nodeSelector:
+        kubernetes.io/os: linux
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 250m
+          memory: 128Mi
+    metrics:
+      enabled: true

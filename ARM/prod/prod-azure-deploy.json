@@ -1,0 +1,500 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "type": "string",
+            "defaultValue": "rg-aks-wp-app-01",
+            "metadata": {
+                "description": "The name of the AKS cluster."
+            }
+        },
+        "upgradeChannel": {
+            "type": "string",
+            "defaultValue": "node-image",
+            "allowedValues": [
+                "rapid",
+                "stable",
+                "patch",
+                "node-image"
+            ],
+            "metadata": {
+                "description": "The upgrade channel for the cluster."
+            }
+        },
+        "AksPaidSkuForSLA": {
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to use paid SKU for SLA."
+            }
+        },
+        "SystemPoolType": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Standard",
+                "Advanced"
+            ],
+            "metadata": {
+                "description": "The system pool type."
+            }
+        },
+        "agentCount": {
+            "type": "int",
+            "defaultValue": 1,
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+            ],
+            "metadata": {
+                "description": "The minimum number of nodes for the cluster."
+            }
+        },
+        "agentCountMax": {
+            "type": "int",
+            "defaultValue": 20,
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+            ],
+            "metadata": {
+                "description": "The maximum number of nodes for the cluster."
+            }
+        },
+        "agentVMSize":{
+            "type": "string",
+            "defaultValue": "Standard_D2s_v3",
+            "allowedValues": [
+                "Standard_B2s",
+                "Standard_B2ms",
+                "Standard_B4ms",
+                "Standard_B8ms",
+                "Standard_B12ms",
+                "Standard_B16ms",
+                "Standard_DS2_v2",
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_F2s_v2",
+                "Standard_F4s_v2",
+                "Standard_F8s_v2",
+                "Standard_F16s_v2",
+                "Standard_F2s",
+                "Standard_F4s",
+                "Standard_F8s",
+                "Standard_F16s"
+                ],
+            "metadata": {
+                "description": "The size of the VMs in the cluster."
+            }
+        },
+        "osDiskType": {
+            "type": "string",
+            "defaultValue": "Ephemeral",
+            "allowedValues": [
+                "Managed",
+                "Ephemeral"
+            ],
+            "metadata": {
+                "description": "The type of OS disk to use for VMs in the cluster."
+            }
+        },
+        "osDiskSizeGB": {
+            "type": "int",
+            "defaultValue": 128,
+            "allowedValues": [
+                32,
+                64,
+                128,
+                256,
+                512,
+                1024
+            ],
+            "metadata": {
+                "description": "The size of the OS disk in GB."
+            }
+        },
+        "custom_vnet":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to use custom vnet."
+            }
+        },
+        "CreateNetworkSecurityGroups":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to create network security groups."
+            }
+        },
+        "enable_aad": {
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable Azure Active Directory integration."
+            }
+        },
+        "AksDisableLocalAccounts":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to disable local accounts."
+            }
+        },
+        "enableAzureRBAC":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable Azure RBAC."
+            }
+        },
+        "registries_sku":{
+            "type": "string",
+            "defaultValue": "Premium",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "The SKU of the registries."
+            }
+        },
+        "adminPrincipalId": {
+            "type": "string",
+            "defaultValue": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "metadata": {
+                "description": "The principal ID of the admin user."
+            }
+        },
+        "acrPushRolePrincipalId":{
+            "type": "string",
+            "defaultValue": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "metadata": {
+                "description": "The principal ID of the ACR push role."
+            }
+        },
+        "keyVaultOfficerRolePrincipalId":{
+            "type": "string",
+            "defaultValue": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "metadata": {
+                "description": "The principal ID of the key vault officer role."
+            }
+        },
+        "privateLinks":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable private links."
+            }
+        },
+        "enableTelemetry": {
+            "type": "bool",
+            "defaultValue": false,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable telemetry."
+            }
+        },
+        "networkPolicy":{
+            "type": "string",
+            "defaultValue": "azure",
+            "allowedValues": [
+                "azure",
+                "calico"
+            ],
+            "metadata": {
+                "description": "The network policy."
+            }
+        },
+        "azurepolicy":{
+            "type": "string",
+            "defaultValue": "audit",
+            "allowedValues": [
+                "deny",
+                "audit"
+            ], 
+            "metadata": {
+                "description": "Enable Azure AKS policy."
+            }
+        },
+        "availabilityZones": {
+            "type": "array",
+            "defaultValue": [],
+            "allowedValues": [
+                [],
+                [
+                    "1"
+                ],
+                [
+                    "2"
+                ],
+                [
+                    "3"
+                ],
+                [
+                    "1",
+                    "2"
+                ],
+                [
+                    "1",
+                    "3"
+                ],
+                [
+                    "2",
+                    "3"
+                ],
+                [
+                    "1",
+                    "2",
+                    "3"
+                ]
+            ],
+            "metadata": {
+                "description": "The availability zones to use for nodes in the cluster. Syntax : \"[\"1\", \"2\", \"3\"]\""
+            }
+        },
+        "fileCSIDriver":{
+            "type": "bool",
+            "defaultValue": false,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable file CSI driver."
+            }
+        },
+        "diskCSIDriver":{
+            "type": "bool",
+            "defaultValue": false,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable disk CSI driver."
+            }
+        },
+        "keyVaultAksCSI":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to enable key vault CSI driver."
+            }
+        },
+        "keyVaultCreate":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to create key vault."
+            }
+        },
+        "acrPrivatePool":{
+            "type": "bool",
+            "defaultValue": true,
+            "allowedValues": [
+                true,
+                false
+            ],
+            "metadata": {
+                "description": "Whether to create private pool for ACR."
+            }
+        },
+        "keyVaultIPAllowlist":{
+            "type": "array",
+            "defaultValue": ["x.x.x.x/32", "x.x.x.x/24"],
+            "metadata": {
+                "description": "The IP allowlist for the key vault."
+            }
+        },
+        "authorizedIPRanges":{
+            "type": "array",
+            "defaultValue": ["x.x.x.x/32", "x.x.x.x/24"],
+            "metadata": {
+                "description": "Authorized IP ranges allowed to access the AKS Cluster. Syntax : \"[\"x.x.x.x/32\", \"x.x.x.x/24\"]\""
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-05-10",
+            "name": "mainTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {
+                    "resourceName": {
+                        "value": "[parameters('resourceName')]"
+                    },
+                    "upgradeChannel": {
+                        "value": "[parameters('upgradeChannel')]"
+                    },
+                    "AksPaidSkuForSLA": {
+                        "value": "[parameters('AksPaidSkuForSLA')]"
+                    },
+                    "SystemPoolType": {
+                        "value": "[parameters('SystemPoolType')]"
+                    },
+                    "agentCount": {
+                        "value": "[parameters('agentCount')]"
+                    },
+                    "agentCountMax": {
+                        "value": "[parameters('agentCountMax')]"
+                    },
+                    "agentVMSize": {
+                        "value": "[parameters('agentVMSize')]"
+                    },
+                    "osDiskType": {
+                        "value": "[parameters('osDiskType')]"
+                    },
+                    "osDiskSizeGB": {
+                        "value": "[parameters('osDiskSizeGB')]"
+                    },
+                    "custom_vnet": {
+                        "value": "[parameters('custom_vnet')]"
+                    },
+                    "CreateNetworkSecurityGroups": {
+                        "value": "[parameters('CreateNetworkSecurityGroups')]"
+                    },
+                    "enable_aad": {
+                        "value": "[parameters('enable_aad')]"
+                    },
+                    "AksDisableLocalAccounts": {
+                        "value": "[parameters('AksDisableLocalAccounts')]"
+                    },
+                    "enableAzureRBAC": {
+                        "value": "[parameters('enableAzureRBAC')]"
+                    },
+                    "adminPrincipalId": {
+                        "value": "[parameters('adminPrincipalId')]"
+                    },
+                    "registries_sku": {
+                        "value": "[parameters('registries_sku')]"
+                    },
+                    "acrPushRolePrincipalId": {
+                        "value": "[parameters('acrPushRolePrincipalId')]"
+                    },
+                    "privateLinks": {
+                        "value": "[parameters('privateLinks')]"
+                    },
+                    "keyVaultIPAllowlist": {
+                        "value": "[parameters('keyVaultIPAllowlist')]"
+                    },
+                    "enableTelemetry": {
+                        "value": "[parameters('enableTelemetry')]"
+                    },
+                    "networkPolicy": {
+                        "value": "[parameters('networkPolicy')]"
+                    },
+                    "azurepolicy": {
+                        "value": "[parameters('azurepolicy')]"
+                    },
+                    "availabilityZones": {
+                        "value": "[parameters('availabilityZones')]"
+                    },
+                    "fileCSIDriver": {
+                        "value": "[parameters('fileCSIDriver')]"
+                    },
+                    "diskCSIDriver": {
+                        "value": "[parameters('diskCSIDriver')]"
+                    },
+                    "keyVaultAksCSI": {
+                        "value": "[parameters('keyVaultAksCSI')]"
+                    },
+                    "keyVaultCreate": {
+                        "value": "[parameters('keyVaultCreate')]"
+                    },
+                    "keyVaultOfficerRolePrincipalId": {
+                        "value": "[parameters('keyVaultOfficerRolePrincipalId')]"
+                    },
+                    "acrPrivatePool": {
+                        "value": "[parameters('acrPrivatePool')]"
+                    },
+                    "authorizedIPRanges": {
+                        "value": "[parameters('authorizedIPRanges')]"
+                    }
+
+                },
+                "templateLink": {
+                    "uri": "https://github.com/Azure/AKS-Construction/releases/download/0.10.2/main.json"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "mainTemplateOutputs": {
+            "type": "object",
+            "value": "[reference('mainTemplate').outputs]"
+        }
+    }
+}
